@@ -8,6 +8,11 @@ schools:
     initial: "G"          # 排序首字母
     resource_folder: "GLOBAL_TOOLS"   # 资源文件夹名称
 
+  - id: "zhengfang_jiaowu"
+    name: "正方教务-通用教务"
+    initial: "Z"
+    resource_folder: "zhengfang_jiaowu"  
+
   - id: "CUST"
     name: "长春理工大学"
     initial: "C"

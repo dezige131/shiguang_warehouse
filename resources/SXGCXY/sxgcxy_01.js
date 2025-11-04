@@ -15,8 +15,8 @@ const TangHuaiTimeSlots = [
     { number: 6, startTime: "14:25", endTime: "15:10" },
     { number: 7, startTime: "15:20", endTime: "16:05" },
     { number: 8, startTime: "16:05", endTime: "16:50" },
-    { number: 9, startTime: "17:00", endTime: "17:45" },
-    { number: 10, startTime: "17:45", endTime: "18:30" }
+    { number: 9, startTime: "17:30", endTime: "18:15" },
+    { number: 10, startTime: "18:15", endTime: "19:00" }
 ];
 
 // 龙潭校区作息时间

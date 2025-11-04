@@ -1,4 +1,4 @@
-# resources/HNZY/adapters.yaml
+# resources/MMPT/adapters.yaml
 adapters:
   - adapter_id: "MMPT"
     adapter_name: "茂名职业技术学院课表"

@@ -1,4 +1,4 @@
-# resources/TARU/adapters.yaml
+# resources/XAWL/adapters.yaml
 adapters:
   - adapter_id: "XAWL_01"
     adapter_name: "西安文理学院正方教务"
