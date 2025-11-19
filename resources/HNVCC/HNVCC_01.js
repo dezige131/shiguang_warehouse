@@ -361,14 +361,14 @@ async function runImportFlow() {
         AndroidBridge.showToast("请先登录教务系统");
         return;
     }
-    // *** 结束新增逻辑 ***
 
     // 获取用户输入：学年
+    let currentYear = new Date().getFullYear();
     const academicYear = await window.AndroidBridgePromise.showPrompt(
         "选择学年", 
-        "请输入要导入课程的学年（如 2025）：",
-        "", 
-        "validateYearInput" 
+        "请输入要导入课程的学年（如 " + currentYear + "）:",
+        String(currentYear),
+        "validateYearInput"
     );
     if (academicYear === null) {
         AndroidBridge.showToast("导入已取消。");
