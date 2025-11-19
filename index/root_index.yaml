@@ -62,3 +62,8 @@ schools:
     name: "西安文理学院"
     initial: "X"
     resource_folder: "XAWL"  
+
+  - id: "HNVCC"
+    name: "湖南商务职业技术学院"
+    initial: "H"
+    resource_folder: "HNVCC"    
