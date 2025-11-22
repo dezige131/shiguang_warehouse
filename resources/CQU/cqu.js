@@ -49,8 +49,8 @@ const parseSchedule = (startDate, maxWeek, timeSlots, schedule) => ({
         teacher: course.instructorName?.slice(0, course.instructorName?.indexOf('-')) ?? '',
         position: course.position ?? course.roomName ?? '',
         day: course.weekDay ?? 0,
-        startSection: (course.periodFormat?.indexOf('-') ?? 0) > 0 ? (Number(course.periodFormat?.split('-')[0]) + 1) : (Number(course.periodFormat) + 1) ?? 0,
-        endSection: (course.periodFormat?.indexOf('-') ?? 0) > 0 ? (Number(course.periodFormat?.split('-')[1]) + 1) : (Number(course.periodFormat) + 1) ?? 0,
+        startSection: (course.periodFormat?.indexOf('-') ?? 0) > 0 ? (Number(course.periodFormat?.split('-')[0])) : (Number(course.periodFormat)) ?? 0,
+        endSection: (course.periodFormat?.indexOf('-') ?? 0) > 0 ? (Number(course.periodFormat?.split('-')[1])) : (Number(course.periodFormat)) ?? 0,
         weeks: (course.teachingWeek ?? '').split('').map((char, index) => (char === '1' ? index + 1 : null)).filter(week => week !== null),
     })),
 });
