@@ -82,3 +82,8 @@ schools:
     name: "喀什大学"
     initial: "K"
     resource_folder: "KSU"
+
+  - id: "chaoxing"
+    name: "超星教务系统"
+    initial: "C"
+    resource_folder: "chaoxing"
