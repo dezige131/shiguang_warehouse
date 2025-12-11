@@ -87,3 +87,8 @@ schools:
     name: "超星教务系统"
     initial: "C"
     resource_folder: "chaoxing"
+
+  - id: "WHCB"
+    name: "武汉船舶职业技术学院"
+    initial: "W"
+    resource_folder: "WHCB"
