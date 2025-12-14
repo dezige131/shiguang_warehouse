@@ -200,7 +200,6 @@ async function runImportFlow() {
     const LOGIN_URL_START = "https://authserver.jxust.edu.cn/authserver/login";
     if (window.location.href.startsWith(LOGIN_URL_START)) {
         AndroidBridge.showToast("错误：当前页面为登录页，请先完成登录后再尝试导入！");
-        AndroidBridge.notifyTaskCompletion();
         return;
     }
 
