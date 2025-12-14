@@ -11,7 +11,12 @@ schools:
   - id: "zhengfang_jiaowu"
     name: "正方教务-通用教务"
     initial: "Z"
-    resource_folder: "zhengfang_jiaowu"  
+    resource_folder: "zhengfang_jiaowu"
+
+  - id: "chaoxing"
+    name: "超星教务系统-通用教务"
+    initial: "C"
+    resource_folder: "chaoxing"  
   
   - id: "CQU"
     name: "重庆大学"
@@ -83,12 +88,12 @@ schools:
     initial: "K"
     resource_folder: "KSU"
 
-  - id: "chaoxing"
-    name: "超星教务系统"
-    initial: "C"
-    resource_folder: "chaoxing"
-
   - id: "WHCB"
     name: "武汉船舶职业技术学院"
     initial: "W"
     resource_folder: "WHCB"
+
+  - id: "CTGU"
+    name: "三峡大学"
+    initial: "S"
+    resource_folder: "CTGU"
