@@ -97,3 +97,8 @@ schools:
     name: "三峡大学"
     initial: "S"
     resource_folder: "CTGU"
+
+  - id: "JXUST"
+    name: "江西理工大学"
+    initial: "J"
+    resource_folder: "JXUST"  
