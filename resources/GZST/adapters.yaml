@@ -6,4 +6,4 @@ adapters:
     asset_js_path: "gzst.js"
     import_url: "https://jw.educationgroup.cn/gzstzyxy_jsxsd/"
     maintainer: "星河欲转"
-    description: "广州松田职业学院强智适配,添加双季作息,非本校开发者适配如果有误建议提交issues"
+    description: "广州松田职业学院强智适配,非本校开发者适配如果有误建议提交issues"
