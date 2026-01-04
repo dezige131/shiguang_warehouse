@@ -87,11 +87,8 @@ async function demoSingleSelection() {
     }
 }
 
-// 仍然可以使用原始的 AndroidBridge 对象
-AndroidBridge.showToast("这是一个来自 JS 的 Toast 消息，会很快消失！");
-
+// 4. 导入课程数据
 async function demoSaveCourses() {
-    // ... 代码保持不变 ...
     console.log("正在准备测试课程数据...");
     const testCourses = [
     {
@@ -102,6 +99,26 @@ async function demoSaveCourses() {
         "startSection": 1,
         "endSection": 2,
         "weeks": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    },
+    {
+        "name": "测试自定义课程1",
+        "teacher": "测试老师1",
+        "position": "测试教室1",
+        "day": 1,
+        "isCustomTime": true,
+        "customStartTime": "08:00",
+        "customEndTime": "09:00",
+        "weeks": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    },
+    {
+        "name": "测试自定义课程2",
+        "teacher": "测试老师2",
+        "position": "测试教室2",
+        "day": 3,
+        "isCustomTime": true,
+        "customStartTime": "06:00",
+        "customEndTime": "12:00",
+        "weeks": [3, 5, 7, 9, 11, 13, 15]
     },
     {
         "name": "大学英语",
@@ -292,7 +309,7 @@ async function demoSaveCourses() {
     }
 }
 
-// 5. 导入预设时间段（保持不变）
+// 5. 导入预设时间段
 async function importPresetTimeSlots() {
     console.log("正在准备预设时间段数据...");
     const presetTimeSlots = [
@@ -330,6 +347,40 @@ async function importPresetTimeSlots() {
     }
 }
 
+// 6. 导入课表配置
+async function demoSaveConfig() {
+    console.log("正在准备配置数据...");
+    // 注意：只传入要修改的字段，其他字段（如 semesterTotalWeeks）会使用 Kotlin 模型中的默认值
+    const courseConfigData = {
+        "semesterStartDate": "2025-09-01",
+        "semesterTotalWeeks": 18,
+        "defaultClassDuration": 50,
+        "defaultBreakDuration": 5,
+        "firstDayOfWeek": 7
+    };
+
+    try {
+        console.log("正在尝试导入课表配置...");
+        const configJsonString = JSON.stringify(courseConfigData);
+
+        const result = await window.AndroidBridgePromise.saveCourseConfig(configJsonString);
+
+        if (result === true) {
+            console.log("课表配置导入成功！");
+            AndroidBridge.showToast("测试配置导入成功！开学日期: 2025-09-01");
+        } else {
+            console.log("课表配置导入未成功，结果：" + result);
+            AndroidBridge.showToast("测试配置导入失败，请查看日志。");
+        }
+    } catch (error) {
+        console.error("导入配置时发生错误:", error);
+        AndroidBridge.showToast("导入配置失败: " + error.message);
+    }
+}
+
+
+AndroidBridge.showToast("这是一个来自 JS 的 Toast 消息，会很快消失！");
+
 /**
  * 编排这些异步操作，并在用户取消时停止后续执行。
  */
@@ -363,6 +414,7 @@ async function runAllDemosSequentially() {
     // 以下是数据导入，与用户交互无关，可以继续
     await demoSaveCourses();
     await importPresetTimeSlots();
+    await demoSaveConfig();
 
     // 发送最终的生命周期完成信号
     AndroidBridge.notifyTaskCompletion();
