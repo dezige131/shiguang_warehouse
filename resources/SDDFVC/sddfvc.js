@@ -80,6 +80,7 @@ function parseCoursesToModel(sourceData) {
  */
 async function saveAppConfig() {
     const config = {
+        "semesterTotalWeeks": 22,
         "defaultClassDuration": 90,
         "defaultBreakDuration": 15,
         "firstDayOfWeek": 1
