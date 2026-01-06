@@ -1,0 +1,9 @@
+# resources/SDDFVC/adapters.yaml
+adapters:
+  - adapter_id: "SDDFVC"
+    adapter_name: "山东药品食品职业学院教务"
+    category: "BACHELOR_AND_ASSOCIATE"
+    asset_js_path: "sddfvc.js"
+    import_url: "http://jwxt.sddfvc.edu.cn/mobile/login"
+    maintainer: "星河欲转"
+    description: "山东药品食品职业学院教务适配,非本校开发者适配如果有误建议提交issues"
