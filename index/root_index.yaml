@@ -116,4 +116,9 @@ schools:
   - id: "SDDFVC"
     name: "山东药品食品职业学院"
     initial: "S"
-    resource_folder: "SDDFVC"       
+    resource_folder: "SDDFVC"
+
+  - id: "CQCIVC"
+    name: "重庆化工职业学院"
+    initial: "C"
+    resource_folder: "CQCIVC"
