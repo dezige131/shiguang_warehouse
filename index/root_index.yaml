@@ -122,3 +122,8 @@ schools:
     name: "重庆化工职业学院"
     initial: "C"
     resource_folder: "CQCIVC"
+
+  - id: "NEU"
+    name: "东北大学"
+    initial: "D"
+    resource_folder: "NEU"
