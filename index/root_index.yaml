@@ -127,6 +127,7 @@ schools:
     name: "东北大学"
     initial: "D"
     resource_folder: "NEU"
+  
   - id: "NJNU"
     name: "南京师范大学"
     initial: "N"
