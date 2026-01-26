@@ -64,7 +64,7 @@ function parseSingleCourse(rawCourse) {
  */
 async function fetchSemesterStartDate(academicYear, semesterCode) {
     try {
-        const response = await fetch("https://ehallapp.nnu.edu.cn/jwapp/sys/wdkb/modules/jshkcb/cxjcs.do", {
+        const response = await fetch("http://ehallapp.nnu.edu.cn/jwapp/sys/wdkb/modules/jshkcb/cxjcs.do", {
             method: "POST",
             headers: {
                 "accept": "application/json, text/javascript, */*; q=0.01",
@@ -222,7 +222,7 @@ async function fetchAndParseCourses(academicYear, semesterCode) {
     };
     
     // 获取个人课表数据
-    const courseUrl = "https://ehallapp.nnu.edu.cn/jwapp/sys/wdkb/modules/xskcb/cxxszhxqkb.do";
+    const courseUrl = "http://ehallapp.nnu.edu.cn/jwapp/sys/wdkb/modules/xskcb/cxxszhxqkb.do";
     const courseBody = `XNXQDM=${XNXQDM}&`;
     let rawCourseData;
     try {
@@ -241,7 +241,7 @@ async function fetchAndParseCourses(academicYear, semesterCode) {
     }
     let parsedCourses = rawCourses.map(c => parseSingleCourse(c)).filter(c => c !== null);
     
-    const changeUrl = "https://ehallapp.nnu.edu.cn/jwapp/sys/wdkb/modules/xskcb/xsdkkc.do";
+    const changeUrl = "http://ehallapp.nnu.edu.cn/jwapp/sys/wdkb/modules/xskcb/xsdkkc.do";
     const changeBody = `XNXQDM=${XNXQDM}&*order=-SQSJ`; 
     let rawChangeData;
     try {
