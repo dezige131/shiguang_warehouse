@@ -446,14 +446,42 @@ async function getMaxWeekValue(yearid, termid) {
 }
 
 /*    * 异步获取第一个课程日期
+    * 调用此函数需要先设定学年和学期，否则可能获取不到正确的数据
+    *
     * @param {string} yearid - 学年ID
     * @param {string} termid - 学期ID
     * @returns {Promise<string>} 第一个课程日期字符串，格式如 "2025-09-01"
 **/
 async function getFirstCourseDate(yearid, termid) {
-    const url = `http://jw.imut.edu.cn/academic/manager/coursearrange/studentWeeklyTimetable.do?yearid=${yearid}&termid=${termid}&whichWeek=1`;
+    const url = 'http://jw.imut.edu.cn/academic/manager/coursearrange/studentWeeklyTimetable.do';
+    
     try {
-        const doc = await fetchAndParseHTML(url, 'gbk');
+        // 构建POST请求的表单数据
+        const formData = new URLSearchParams();
+        formData.append('yearid', yearid);
+        formData.append('termid', termid);
+        formData.append('whichWeek', '1');  // 固定请求第一周
+        
+        const doc = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Referer': `http://jw.imut.edu.cn/academic/manager/coursearrange/studentWeeklyTimetable.do?yearid=${yearid}&termid=${termid}`
+            },
+            body: formData.toString(),
+            credentials: 'include'  // 包含cookie
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(text => {
+            // 将文本解析为DOM文档
+            const parser = new DOMParser();
+            return parser.parseFromString(text, 'text/html');
+        });
         
         // 查找第一个课程日期
         const firstDateTd = doc.querySelector('td[name="td0"]');
@@ -468,6 +496,31 @@ async function getFirstCourseDate(yearid, termid) {
     } catch (error) {
         console.error('获取数据失败:', error);
         return null;
+    }
+}
+
+// 设置当前学年和学期
+async function setCurrentYearAndTerm(yearid, termid) {
+    const url = `http://jw.imut.edu.cn/academic/student/currcourse/currcourse.jsdo?year=${yearid}&term=${termid}`
+    try {
+        const doc = await fetchAndParseHTML(url, 'gbk');
+        const text = doc.querySelector('#title td div').textContent.trim();
+        const match = text.match(/(\d{4})(春|夏|秋)/);
+        if (match) {
+            const year = match[1];
+            const season = match[2];
+
+            let curtermid = (season === '春') ? 1 : (season === '夏') ? 2 : 3;
+            let curyearid = String(parseInt(year) - 1980);
+
+            if (curtermid == termid && curyearid == yearid) {
+                return true;
+            }
+        }
+        return false;
+    } catch (error) {
+        console.error('设置当前学年学期失败:', error);
+        return false;
     }
 }
 
@@ -500,11 +553,60 @@ function validateDateFormat(dateString) {
 async function setStartDate(suggestedDate) {
     const dateSelection = await window.AndroidBridgePromise.showPrompt(
         "请确认学期起始日期",
-        `此日期来自您本学期第一节课日期，如有误，请修改（格式：YYYY-MM-DD）：`,
+        `此日期来自您此学期第一节课日期，如有误，请修改（格式：YYYY-MM-DD）：`,
         suggestedDate || "",
         "validateDateFormat"
     );
     return dateSelection;
+}
+
+// 验证学年输入函数
+function validateYearInput(input) {
+    if (/^[0-9]{4}$/.test(input)) {
+        return false; // 验证通过
+    } else {
+        return "请输入四位数字的学年！"; // 验证失败
+    }
+}
+
+
+// 选择学年
+async function getAcademicYear(currentYear) {
+    const yearSelection = await window.AndroidBridgePromise.showPrompt(
+        "选择学年", 
+        "请输入要导入课程的学年（如 2026）:",
+        parseInt(currentYear) + 1980, 
+        "validateYearInput" // 传入全局函数名
+    );
+    const academicYear = String(parseInt(yearSelection) - 1980);
+    return academicYear;
+}
+
+// 选择学期
+async function selectTerms() {
+    const terms = ["春（第二学期）", "夏", "秋（第一学期）"];
+    const termIndex = await window.AndroidBridgePromise.showSingleSelection(
+        "请选择学期",
+        JSON.stringify(terms),
+        -1
+    );
+    const term = termIndex + 1; // 转换为1,2,3
+
+    return term;
+}
+
+// 弹出修改学年和学期对话框
+async function setYearAndTerm(currentYear, currentTerm) {
+    const confirmed = await window.AndroidBridgePromise.showAlert(
+        "请确认学年和学期",
+        `当前学年为 ${parseInt(currentYear) + 1980} 年，学期为 ${currentTerm === '3' ? '秋（第一学期）' : currentTerm === '1' ? '春（第二学期）' : '夏'}。是否需要修改？`,
+        "我要修改"
+    );
+    if (!confirmed) {
+        AndroidBridge.showToast("使用默认学年和学期进行导入。");
+        return false;
+    }
+    return true;
 }
 
 // ====================== 导入课程主流程 ======================
@@ -522,8 +624,23 @@ async function runImportFlow() {
     currentYear = semesterInfo.year; // 当前年份 - 1980
     currentTerm = semesterInfo.term; // 当前学期
 
+    // 自定义年份学期
+    const needModify = await setYearAndTerm(currentYear, currentTerm);
+    if (needModify) {
+        currentYear = await getAcademicYear(currentYear);
+        currentTerm = await selectTerms();
+        AndroidBridge.showToast(`当前年份与学期已修改为：${parseInt(currentYear) + 1980} 年，学期 ${currentTerm === 2 ? '夏' : currentTerm === 1 ? '春（第二学期）' : '秋（第一学期）'}`);
+    }
+
+    // 设置当前学年和学期
+    const setResult = await setCurrentYearAndTerm(currentYear, currentTerm);
+    if (!setResult) {
+        AndroidBridge.showToast("设置学年和学期失败！");
+        return;
+    }
+
     // 构造课程表URL
-    const timetableUrl = `http://jw.imut.edu.cn/academic/manager/coursearrange/showTimetable.do?id=${semesterInfo.studentid}&yearid=${semesterInfo.year}&termid=${semesterInfo.term}&timetableType=STUDENT&sectionType=BASE`;
+    const timetableUrl = `http://jw.imut.edu.cn/academic/manager/coursearrange/showTimetable.do?id=${semesterInfo.studentid}&yearid=${currentYear}&termid=${currentTerm}&timetableType=STUDENT&sectionType=BASE`;
 
     // 获取时段数据
     const timeSlots = await getTimeSlotsArray(timetableUrl);
@@ -544,7 +661,7 @@ async function runImportFlow() {
     // 获取第一个课程日期
     let firstCourseDate = null;
     try {
-        firstCourseDate = await getFirstCourseDate(semesterInfo.year, semesterInfo.term);
+        firstCourseDate = await getFirstCourseDate(currentYear, currentTerm);
     } catch (err) {
         console.warn("获取第一个课程日期失败:", err);
     }
@@ -560,7 +677,7 @@ async function runImportFlow() {
     // 获取最大周数
     let maxWeeks = 20; // 默认最大周数
     try {
-        maxWeeks = await getMaxWeekValue(semesterInfo.year, semesterInfo.term);
+        maxWeeks = await getMaxWeekValue(currentYear, currentTerm);
     } catch (err) {
         console.warn("获取最大周数失败，使用默认值 20");
     }
