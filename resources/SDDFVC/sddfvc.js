@@ -38,7 +38,7 @@ function parseWeeks(zcString, dsz) {
 function parseCoursesToModel(sourceData) {
     const resultCourses = [];
     const days = ["xq1", "xq2", "xq3", "xq4", "xq5", "xq6", "xq7"];
-    const sectionMap = { "1": 1, "3": 2, "5": 3, "7": 4 };
+    const sectionMap = { "1": 1, "3": 2, "5": 3, "7": 4, "9": 5, "11": 6 };
 
     days.forEach((dayKey, index) => {
         const dayContent = sourceData[dayKey];
@@ -96,7 +96,9 @@ async function saveAppTimeSlots() {
         { "number": 1, "startTime": "08:30", "endTime": "10:00" },
         { "number": 2, "startTime": "10:15", "endTime": "11:45" },
         { "number": 3, "startTime": "13:30", "endTime": "15:00" },
-        { "number": 4, "startTime": "15:15", "endTime": "16:45" }
+        { "number": 4, "startTime": "15:15", "endTime": "16:45" },
+        { "number": 5, "startTime": "19:00", "endTime": "19:30" },
+        { "number": 6, "startTime": "20:00", "endTime": "20:45" }
     ];
     return await window.AndroidBridgePromise.savePresetTimeSlots(JSON.stringify(timeSlots));
 }
@@ -122,6 +124,55 @@ async function getSelectedSemesterId(apiToken) {
     return selectedIdx !== null ? xqList[selectedIdx].id : null;
 }
 
+/**
+ * 核心合并逻辑：将多周次数据合并为学期格式
+ * @param {Array} allWeekCourses 所有周次抓取到的原始课程数组
+ */
+function mergeWeeklyCourses(allWeekCourses) {
+    const courseMap = new Map();
+
+    allWeekCourses.forEach(course => {
+        // 生成唯一标识：名称+老师+地点+星期+节次
+        const key = `${course.name}|${course.teacher}|${course.position}|${course.day}|${course.startSection}`;
+        
+        if (courseMap.has(key)) {
+            const existing = courseMap.get(key);
+            // 合并周次并去重排序
+            const combinedWeeks = [...new Set([...existing.weeks, ...course.weeks])].sort((a, b) => a - b);
+            existing.weeks = combinedWeeks;
+        } else {
+            courseMap.set(key, { ...course });
+        }
+    });
+
+    return Array.from(courseMap.values());
+}
+
+/**
+ * 遍历抓取 1-22 周的数据
+ */
+async function fetchFullSemesterData(apiToken, semesterId) {
+    let allCourses = [];
+    const totalWeeks = 22;
+
+    for (let w = 1; w <= totalWeeks; w++) {
+        AndroidBridge.showToast(`正在获取第 ${w}/${totalWeeks} 周...`);
+        try {
+            const res = await fetch(`http://jwxt.sddfvc.edu.cn/mobile/student/mobile_kcb?api_token=${apiToken}&xq=${semesterId}&week=${w}`);
+            const json = await res.json();
+            if (json.data) {
+                const weekCourses = parseCoursesToModel(json.data);
+                allCourses = allCourses.concat(weekCourses);
+            }
+        } catch (e) {
+            console.warn(`第 ${w} 周数据抓取失败`, e);
+        }
+    }
+    
+    // 调用合并函数
+    return mergeWeeklyCourses(allCourses);
+}
+
 // 流程控制
 
 async function runImportFlow() {
@@ -132,33 +183,38 @@ async function runImportFlow() {
             return;
         }
         const apiToken = tokenMatch[1];
-
         const semesterId = await getSelectedSemesterId(apiToken);
         if (!semesterId) {
             AndroidBridge.showToast("导入已取消");
             return;
         }
 
-        AndroidBridge.showToast("正在获取课表数据...");
+        AndroidBridge.showToast("尝试获取学期总表...");
         const kcbRes = await fetch(`http://jwxt.sddfvc.edu.cn/mobile/student/mobile_kcb?api_token=${apiToken}&xq=${semesterId}`);
         const kcbJson = await kcbRes.json();
 
-        const finalCourses = parseCoursesToModel(kcbJson.data);
+        let finalCourses = parseCoursesToModel(kcbJson.data);
+
         if (finalCourses.length === 0) {
-            AndroidBridge.showToast("该学期暂无课程");
+            AndroidBridge.showToast("总表无数据，启动周遍历模式...");
+            finalCourses = await fetchFullSemesterData(apiToken, semesterId);
+        }
+
+        if (finalCourses.length === 0) {
+            AndroidBridge.showToast("未发现任何课程数据");
             return;
         }
 
+        // 保存逻辑
         AndroidBridge.showToast("正在保存配置...");
         await saveAppConfig();
         await saveAppTimeSlots();
         await window.AndroidBridgePromise.saveImportedCourses(JSON.stringify(finalCourses));
         
-        AndroidBridge.showToast(`成功导入 ${finalCourses.length} 条课程明细`);
+        AndroidBridge.showToast(`成功导入 ${finalCourses.length} 门课程`);
         AndroidBridge.notifyTaskCompletion();
 
     } catch (error) {
-        console.error(error);
         AndroidBridge.showToast("异常: " + error.message);
     }
 }
