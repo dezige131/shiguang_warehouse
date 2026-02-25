@@ -1,4 +1,4 @@
-# resources/chaoxing/adapters.yaml
+# resources/chaoxing_jiaowu/adapters.yaml
 adapters:
   - adapter_id: "chaoxing"
     adapter_name: "超星教务系统"

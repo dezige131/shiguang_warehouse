@@ -13,10 +13,15 @@ schools:
     initial: "Z"
     resource_folder: "zhengfang_jiaowu"
 
-  - id: "chaoxing"
+  - id: "chaoxing_jiaowu"
     name: "超星教务系统-通用教务"
     initial: "C"
-    resource_folder: "chaoxing"  
+    resource_folder: "chaoxing_jiaowu"  
+
+  - id: "qingguo_jiaowu"
+    name: "青果教务-通用教务"
+    initial: "Q"
+    resource_folder: "qingguo_jiaowu"    
   
   - id: "CQU"
     name: "重庆大学"
