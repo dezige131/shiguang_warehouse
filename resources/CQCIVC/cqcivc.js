@@ -183,7 +183,7 @@ async function fetchAndParseCourses(academicYear, semesterIndex) {
 
     const semesterCode = getSemesterCode(semesterIndex);
     
-    // API URL 和请求体 (已修改：使用更稳定的 xskbcx_cxXsgrkb.html 接口，并添加了完整的 Body 参数)
+    // API URL 和请求体
     const xnmXqmBody = `xnm=${academicYear}&xqm=${semesterCode}&kzlx=ck&xsdm=&kclbdm=`; 
     const url = "http://jwxt.cqcivc.edu.cn/jwglxt/kbcx/xskbcx_cxXsgrkb.html?gnmkdm=N2151";
 
