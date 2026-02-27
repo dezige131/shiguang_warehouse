@@ -53,18 +53,9 @@ function parseTimetableToModel(doc) {
         const cells = row.querySelectorAll('td');
         if (cells.length < 7) return;
 
-        // 获取节次信息
-        const sectionText = row.querySelector('th') ? row.querySelector('th').innerText : "";
-        const sectionMatch = sectionText.match(/(\d+),(\d+)/) || sectionText.match(/(\d+)-(\d+)/);
-        if (!sectionMatch) return;
-        
-        const start = parseInt(sectionMatch[1]);
-        const end = parseInt(sectionMatch[2]);
-
         // 遍历周一到周日
         cells.forEach((cell, dayIndex) => {
             const day = dayIndex + 1;
-            // 强智系统关键：kbcontent 是隐藏的详细数据区
             const detailDiv = cell.querySelector('div.kbcontent[style*="none"]');
             
             if (detailDiv) {
@@ -93,12 +84,21 @@ function parseTimetableToModel(doc) {
                         }
                     }
 
-                    // 提取教师、周次、地点
+                    // 提取教师、周次(节次)、地点
                     const teacher = tempDiv.querySelector('font[title="教师"]')?.innerText || "未知教师";
                     const weekStr = tempDiv.querySelector('font[title="周次(节次)"]')?.innerText || "";
                     const position = tempDiv.querySelector('font[title="教室"]')?.innerText || "未知地点";
 
-                    if (name && weekStr) {
+                    let start = 0, end = 0;
+                    if (weekStr) {
+                        const secMatch = weekStr.match(/\[(\d+)(?:-(\d+))?节\]/);
+                        if (secMatch) {
+                            start = parseInt(secMatch[1]);
+                            end = secMatch[2] ? parseInt(secMatch[2]) : start;
+                        }
+                    }
+
+                    if (name && weekStr && start > 0) {
                         results.push({
                             "name": name,
                             "teacher": teacher,
