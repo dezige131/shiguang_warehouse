@@ -142,3 +142,8 @@ schools:
     name: "厦门城市职业学院"
     initial: "X"
     resource_folder: "XMCU"  
+
+  - id: "HBLGXY"
+    name: "淮北理工学院"
+    initial: "H"
+    resource_folder: "HBLGXY"  
