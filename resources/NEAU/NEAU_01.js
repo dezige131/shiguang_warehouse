@@ -104,7 +104,7 @@ async function runImportFlow() {
             courseInfo.timeAndPlaceList.forEach(tp => {
                 let courseObj = {
                     name: courseInfo.courseName || "未知课程",
-                    teacher: courseInfo.attendClassTeacher || "未知",
+                    teacher: (courseInfo.attendClassTeacher || "未知").replace(/\*/g, '').trim(),
                     isCustomTime: false
                 };
 
