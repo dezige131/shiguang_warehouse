@@ -156,4 +156,9 @@ schools:
   - id: "GDPU"
     name: "广东药科大学"
     initial: "G"
-    resource_folder: "GDPU"        
+    resource_folder: "GDPU"
+
+  - id: "HNUST"
+    name: "湖南科技大学"
+    initial: "H"
+    resource_folder: "HNUST"        
