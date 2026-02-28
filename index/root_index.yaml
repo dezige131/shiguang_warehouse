@@ -172,3 +172,8 @@ schools:
     name: "江西飞行学院"
     initial: "J"
     resource_folder: "JXFU"
+
+  - id: "NEAU"
+    name: "东北农业大学"
+    initial: "D"
+    resource_folder: "NEAU"
