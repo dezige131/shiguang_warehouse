@@ -19,7 +19,7 @@ function parseWeeks(weekStr) {
 }
 
 /**
- * 提取课程数据（已适配带有 item-box 二维码和特殊字体的强智新版）
+ * 提取课程数据
  */
 function extractCoursesFromDoc(doc) {
     let parsedCourses = [];
@@ -31,10 +31,9 @@ function extractCoursesFromDoc(doc) {
     for (let i = 1; i < rows.length - 1; i++) {
         const cells = rows[i].getElementsByTagName('td');
         for (let j = 0; j < cells.length; j++) {
-            const dayOfWeek = j + 1; // 强智表格：第0个td是周一
+            const dayOfWeek = j + 1; 
             const cell = cells[j];
             
-            // 找到包含详细信息的隐藏 div
             const detailDivs = cell.querySelectorAll('div.kbcontent');
             if (detailDivs.length === 0) continue;
 
@@ -58,11 +57,11 @@ function extractCoursesFromDoc(doc) {
 
                     // 1. 提取课程名 (移除二维码 div 后，取第一行纯文本)
                     let itemBoxes = tempDiv.querySelectorAll('.item-box');
-                    itemBoxes.forEach(box => box.remove()); // 剔除干扰项
+                    itemBoxes.forEach(box => box.remove());
                     
                     let lines = tempDiv.innerHTML.split(/<br\s*\/?>/i);
                     for (let line of lines) {
-                        let cleanLine = line.replace(/<[^>]+>/g, '').trim(); // 剥离 font 等 HTML 标签
+                        let cleanLine = line.replace(/<[^>]+>/g, '').trim();
                         if (cleanLine && cleanLine !== "") {
                             courseObj.name = cleanLine;
                             break;
@@ -77,11 +76,10 @@ function extractCoursesFromDoc(doc) {
                     let positionFont = tempDiv.querySelector('font[title="教室"]');
                     courseObj.position = positionFont ? positionFont.innerText.trim() : "待定";
 
-                    // 4. 提取周次和节次 (适配 [01-02节], [03-04-05节], [10节] 等格式)
+                    // 4. 提取周次和节次
                     let timeFont = tempDiv.querySelector('font[title="周次(节次)"]');
                     if (timeFont) {
                         let timeText = timeFont.innerText.trim();
-                        // 正则：匹配 "X-Y(周)[A-B-C节]" 或 "X(周)[A节]"
                         let timeMatch = timeText.match(/(.+?)\(周\)(?:\[([\d-]+)节\])?/);
                         if (timeMatch) {
                             courseObj.weeks = parseWeeks(timeMatch[1]);
@@ -90,13 +88,12 @@ function extractCoursesFromDoc(doc) {
                                 courseObj.startSection = parseInt(secParts[0]);
                                 courseObj.endSection = parseInt(secParts[secParts.length - 1]);
                             } else {
-                                // 兜底：如果没有标明节次，则根据行号估算
                                 courseObj.startSection = i * 2 - 1;
                                 courseObj.endSection = i * 2;
                             }
                         }
                     } else {
-                        return; // 如果没有时间信息，抛弃该条记录（比如无课表课程）
+                        return; // 抛弃无时间信息的记录
                     }
 
                     if (courseObj.name && courseObj.weeks && courseObj.weeks.length > 0) {
@@ -106,7 +103,23 @@ function extractCoursesFromDoc(doc) {
             });
         }
     }
-    return parsedCourses;
+
+    // ========== 新增：去重逻辑 ==========
+    let uniqueCourses = [];
+    let courseSet = new Set();
+
+    parsedCourses.forEach(course => {
+        // 生成唯一标识符：星期几 + 开始节次 + 结束节次 + 课程名 + 周次数组转字符串
+        let uniqueKey = `${course.day}-${course.startSection}-${course.endSection}-${course.name}-${course.weeks.join(',')}`;
+        
+        // 如果 Set 中没有这个标识符，说明是第一次遇到，加入结果数组
+        if (!courseSet.has(uniqueKey)) {
+            courseSet.add(uniqueKey);
+            uniqueCourses.push(course);
+        }
+    });
+
+    return uniqueCourses; // 返回去重后的纯净数组
 }
 
 /**
@@ -133,8 +146,8 @@ function getPresetTimeSlots() {
  */
 function getCourseConfig() {
     return {
-        "defaultClassDuration": 40, // 单节课 40 分钟
-        "defaultBreakDuration": 5   // 默认课间（长课间靠自定义时间段覆盖）
+        "defaultClassDuration": 40,
+        "defaultBreakDuration": 5
     };
 }
 
@@ -212,16 +225,12 @@ async function runImportFlow() {
         const config = getCourseConfig();
         const timeSlots = getPresetTimeSlots();
 
-        // 浏览器测试环境
         if (typeof window.AndroidBridgePromise === 'undefined') {
-            console.log("【测试成功】课表配置：", config);
-            console.log("【测试成功】作息时间：", timeSlots);
-            console.log("【测试成功】课程数据：\n", JSON.stringify(courses, null, 2));
-            alert(`解析成功！获取到 ${courses.length} 门课程以及定制版作息时间。请打开F12控制台查看。`);
+            console.log("【去重成功】课程数据：\n", JSON.stringify(courses, null, 2));
+            alert(`解析并去重成功！共获取到 ${courses.length} 门课程。请打开F12查看。`);
             return;
         }
 
-        // APP 环境保存数据
         await window.AndroidBridgePromise.saveCourseConfig(JSON.stringify(config));
         await window.AndroidBridgePromise.savePresetTimeSlots(JSON.stringify(timeSlots));
         
