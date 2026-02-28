@@ -167,3 +167,8 @@ schools:
     name: "江苏师范大学"
     initial: "J"
     resource_folder: "JSNU"
+
+  - id: "JXFU"
+    name: "江西飞行学院"
+    initial: "J"
+    resource_folder: "JXFU"
