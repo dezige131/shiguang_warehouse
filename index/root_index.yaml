@@ -161,4 +161,9 @@ schools:
   - id: "HNUST"
     name: "湖南科技大学"
     initial: "H"
-    resource_folder: "HNUST"        
+    resource_folder: "HNUST"
+
+  - id: "JSNU"
+    name: "江苏师范大学"
+    initial: "J"
+    resource_folder: "JSNU"
