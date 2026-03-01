@@ -101,12 +101,12 @@ function getPresetTimeSlots() {
     return [
         { "number": 1, "startTime": "08:00", "endTime": "08:45" },
         { "number": 2, "startTime": "08:55", "endTime": "09:40" },
-        { "number": 3, "startTime": "09:50", "endTime": "10:35" },
-        { "number": 4, "startTime": "10:45", "endTime": "11:30" },
+        { "number": 3, "startTime": "10:00", "endTime": "10:45" },
+        { "number": 4, "startTime": "10:55", "endTime": "11:40" },
         { "number": 5, "startTime": "14:00", "endTime": "14:45" },
         { "number": 6, "startTime": "14:55", "endTime": "15:40" },
-        { "number": 7, "startTime": "15:50", "endTime": "16:35" },
-        { "number": 8, "startTime": "16:45", "endTime": "17:30" },
+        { "number": 7, "startTime": "16:00", "endTime": "16:45" },
+        { "number": 8, "startTime": "16:55", "endTime": "17:40" },
         { "number": 9, "startTime": "19:00", "endTime": "19:45" },
         { "number": 10,"startTime": "19:55", "endTime": "20:40" }
     ];
